@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI flix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050814;
+      --bg-alt: #070b18;
+      --accent: #ff4b8b;
+      --accent-soft: rgba(255, 75, 139, 0.3);
+      --text-main: #f5f5f7;
+      --text-muted: #9da3b5;
+      --card-radius: 18px;
+      --modal-radius: 22px;
+      --shadow-strong: 0 26px 50px rgba(0, 0, 0, 0.8);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #111531 0, #050814 45%, #02030a 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 16px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0 14px;
+      gap: 12px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 1rem;
+    }
+
+    .logo-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 9px;
+      background: radial-gradient(circle at 30% 20%, #ffe6f1 0, #ff4b8b 35%, #7f5af0 100%);
+      box-shadow: 0 0 18px rgba(255, 75, 139, 0.9);
+      position: relative;
+    }
+
+    .logo-icon::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 7px;
+      border: 2px solid rgba(5, 8, 20, 0.9);
+      border-top-color: transparent;
+      border-left-color: transparent;
+      opacity: 0.8;
+    }
+
+    .top-right {
+      display: flex;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      align-items: center;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    /* HERO SECTION */
+
+    .hero {
+      position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #1d2348, #050814 60%);
+      box-shadow: var(--shadow-strong);
+      margin-bottom: 26px;
+    }
+
+    .hero-inner {
+      position: relative;
+      aspect-ratio: 16 / 7;
+      max-height: 420px;
+    }
+
+    .hero-video-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
+    .hero-video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .hero-fade {
+      position: absolute;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .hero-fade-top {
+      top: 0;
+      height: 25%;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
+    }
+
+    .hero-fade-bottom {
+      bottom: 0;
+      height: 45%;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.92), transparent);
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 18px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      z-index: 3;
+    }
+
+    .hero-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.6rem, 3vw, 2.1rem);
+      font-weight: 800;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-title span.accent {
+      background: linear-gradient(120deg, #ff73c6, #ffd479);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-slogan {
+      font-size: 0.95rem;
+      color: #f7f7ff;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      max-width: 460px;
+      margin-bottom: 12px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.87rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ff4b8b, #ff8f5a);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary span.icon {
+      font-size: 0.8rem;
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(0, 0, 0, 0.55);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-ghost span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: #ff0000;
+    }
+
+    /* CATEGORY / CAROUSEL */
+
+    .section {
+      margin-bottom: 26px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff4b8b 0, #ffd7ec 40%, transparent 70%);
+      box-shadow: 0 0 12px rgba(255, 75, 139, 0.7);
+    }
+
+    .section-count {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .carousel-row {
+      position: relative;
+    }
+
+    .carousel {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      padding: 8px 4px 14px;
+      margin: 0 -4px;
+    }
+
+    .carousel::-webkit-scrollbar {
+      height: 6px;
+    }
+    .carousel::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .carousel::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+    }
+
+    .video-card {
+      position: relative;
+      min-width: 220px;
+      max-width: 230px;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      background: #111320;
+      cursor: pointer;
+      scroll-snap-align: start;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7);
+      transform-origin: center bottom;
+      transition: transform 0.18s ease-out, box-shadow 0.18s ease-out,
+        filter 0.18s ease-out;
+    }
+
+    .video-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.85);
+      filter: brightness(1.06);
+    }
+
+    .video-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-gradient {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 55%;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.92),
+        rgba(0, 0, 0, 0.4),
+        transparent
+      );
+    }
+
+    .video-meta {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 8px;
+      color: #fff;
+      z-index: 2;
+    }
+
+    .video-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+      line-height: 1.25;
+    }
+
+    .video-channel {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 64px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(5, 8, 20, 0.85);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      z-index: 3;
+      transition: background 0.16s ease-out, transform 0.16s ease-out,
+        border-color 0.16s ease-out;
+    }
+
+    .nav-btn:hover {
+      background: rgba(15, 20, 40, 0.95);
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .nav-btn.left {
+      left: -4px;
+    }
+    .nav-btn.right {
+      right: -4px;
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        padding-inline: 12px;
+      }
+      .hero-inner {
+        aspect-ratio: 16 / 9;
+      }
+      .nav-btn {
+        display: none; /* 모바일은 손가락으로 슬라이드 */
+      }
+      .video-card {
+        min-width: 180px;
+      }
+    }
+
+    /* MODAL */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease-out;
+    }
+
+    .modal-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: radial-gradient(circle at top, #14172d, #050814 65%);
+      border-radius: var(--modal-radius);
+      max-width: 960px;
+      width: calc(100% - 24px);
+      max-height: calc(100vh - 40px);
+      box-shadow: var(--shadow-strong);
+      padding: 16px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      border-radius: 999px;
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-main {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      gap: 14px;
+    }
+
+    .modal-player-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 16 / 9;
+    }
+
+    .modal-player-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .modal-info-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .modal-info-channel {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .modal-info-curation {
+      font-size: 0.86rem;
+      color: #d7d9e6;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .modal-btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ff4b8b, #ff8f5a);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .modal-btn-secondary {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(0, 0, 0, 0.45);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .modal-recommend {
+      margin-top: 4px;
+    }
+
+    .modal-recommend h3 {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .modal-recommend-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 0 4px;
+    }
+
+    .modal-rec-card {
+      min-width: 150px;
+      max-width: 170px;
+      aspect-ratio: 16 / 9;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      background: #111320;
+    }
+
+    .modal-rec-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-rec-gradient {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 55%;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+    }
+
+    .modal-rec-meta {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 6px;
+      color: #fff;
+      font-size: 0.74rem;
+      line-height: 1.25;
+    }
+
+    @media (max-width: 900px) {
+      .modal-main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-overlay {
+        padding-inline: 12px;
+      }
+      .modal {
+        padding-inline: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <div class="logo-icon"></div>
+        <span>AI flix</span>
+      </div>
+      <div class="top-right">
+        <span class="pill">AI 학습 전용 플레이리스트</span>
+        <span>v1.0</span>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-video-wrapper">
+          <iframe
+            id="hero-iframe"
+            src=""
+            title="AI flix hero video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <div class="hero-fade hero-fade-top"></div>
+          <div class="hero-fade hero-fade-bottom"></div>
+        </div>
+        <div class="hero-overlay">
+          <div class="hero-tag">AI STUDY CINEMA</div>
+          <div class="hero-title">
+            <span class="accent">AI 학습자료는</span> AI flix에서
+          </div>
+          <p class="hero-slogan">집중해서 보고, 바로 따라 치면서 배우는 AI 유튜브 컬렉션.</p>
+          <p class="hero-sub">
+            머신러닝 · 딥러닝 · 자연어 처리 · 생성형 AI까지, 검증된 강의만 모아서 넷플릭스처럼 넘겨보세요.
+          </p>
+          <div class="hero-actions">
+            <button id="hero-play-btn" class="btn-primary">
+              <span class="icon">▶</span>
+              지금바로 시청하기
+            </button>
+            <button class="btn-ghost">
+              <span class="dot"></span>
+              추천 강의 둘러보기
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 메인 컨텐츠 -->
+    <main id="sections"></main>
+
+    <!-- MODAL -->
+    <div id="modal-overlay" class="modal-overlay">
+      <div class="modal">
+        <button id="modal-close" class="modal-close">✕</button>
+
+        <div class="modal-main">
+          <div class="modal-player-wrapper">
+            <iframe
+              id="modal-player"
+              src=""
+              title="AI flix video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
+
+          <div class="modal-info">
+            <h2 id="modal-title" class="modal-info-title"></h2>
+            <div id="modal-channel" class="modal-info-channel"></div>
+            <p id="modal-curation" class="modal-info-curation"></p>
+            <div class="modal-actions">
+              <a
+                id="modal-watch-link"
+                class="modal-btn-primary"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>지금바로 시청하기</span>
+                <span>↗</span>
+              </a>
+              <button id="modal-open-youtube" class="modal-btn-secondary">
+                <span>유튜브에서 열기</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-recommend">
+          <h3>추천 연관 영상</h3>
+          <div id="modal-recommend-row" class="modal-recommend-row"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS 로직 -->
+  <script type="module">
+    import { videos } from "./src.js";
+
+    const sectionsRoot = document.getElementById("sections");
+    const modalOverlay = document.getElementById("modal-overlay");
+    const modalCloseBtn = document.getElementById("modal-close");
+    const modalPlayer = document.getElementById("modal-player");
+    const modalTitle = document.getElementById("modal-title");
+    const modalChannel = document.getElementById("modal-channel");
+    const modalCuration = document.getElementById("modal-curation");
+    const modalWatchLink = document.getElementById("modal-watch-link");
+    const modalOpenYoutube = document.getElementById("modal-open-youtube");
+    const modalRecommendRow = document.getElementById("modal-recommend-row");
+    const heroIframe = document.getElementById("hero-iframe");
+    const heroPlayBtn = document.getElementById("hero-play-btn");
+
+    /* 유틸: 유튜브 URL → ID 추출 */
+    function getYoutubeId(url) {
+      try {
+        const u = new URL(url);
+        if (u.hostname === "youtu.be") {
+          return u.pathname.replace("/", "");
+        }
+        if (u.searchParams.has("v")) {
+          return u.searchParams.get("v");
+        }
+        // /embed/VIDEO_ID 형태
+        const parts = u.pathname.split("/");
+        return parts[parts.length - 1];
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function buildEmbedUrl(video) {
+      const id = getYoutubeId(video.youtubeUrl);
+      if (!id) return video.youtubeUrl;
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    function buildThumbUrl(video) {
+      const id = getYoutubeId(video.youtubeUrl);
+      if (!id) {
+        return "https://i.ytimg.com/vi_webp/ErnWZxJovaM/maxresdefault.webp"; // fallback
+      }
+      return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+    }
+
+    // 데이터 그룹핑
+    const byCategory = videos.reduce((acc, v) => {
+      acc[v.category] = acc[v.category] || [];
+      acc[v.category].push(v);
+      return acc;
+    }, {});
+
+    const categoryOrder = ["머신러닝", "딥러닝", "자연어 처리", "생성형 AI"];
+
+    function createCarouselSection(category, items) {
+      const section = document.createElement("section");
+      section.className = "section";
+
+      const header = document.createElement("div");
+      header.className = "section-header";
+
+      const title = document.createElement("div");
+      title.className = "section-title";
+      const dot = document.createElement("span");
+      dot.className = "section-dot";
+      const label = document.createElement("span");
+      label.textContent = category;
+      title.appendChild(dot);
+      title.appendChild(label);
+
+      const count = document.createElement("span");
+      count.className = "section-count";
+      count.textContent = `${items.length}개 영상`;
+
+      header.appendChild(title);
+      header.appendChild(count);
+
+      const row = document.createElement("div");
+      row.className = "carousel-row";
+
+      const leftBtn = document.createElement("button");
+      leftBtn.className = "nav-btn left";
+      leftBtn.type = "button";
+      leftBtn.textContent = "‹";
+
+      const rightBtn = document.createElement("button");
+      rightBtn.className = "nav-btn right";
+      rightBtn.type = "button";
+      rightBtn.textContent = "›";
+
+      const carousel = document.createElement("div");
+      carousel.className = "carousel";
+
+      items.forEach((video) => {
+        const card = document.createElement("article");
+        card.className = "video-card";
+        card.dataset.videoId = video.id;
+
+        const img = document.createElement("img");
+        img.className = "video-thumb";
+        img.src = buildThumbUrl(video);
+        img.alt = video.title;
+
+        const grad = document.createElement("div");
+        grad.className = "video-gradient";
+
+        const meta = document.createElement("div");
+        meta.className = "video-meta";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "video-title";
+        titleEl.textContent = video.title;
+
+        const channelEl = document.createElement("div");
+        channelEl.className = "video-channel";
+        channelEl.textContent = video.channel;
+
+        meta.appendChild(titleEl);
+        meta.appendChild(channelEl);
+
+        card.appendChild(img);
+        card.appendChild(grad);
+        card.appendChild(meta);
+
+        card.addEventListener("click", () => openVideoModal(video));
+
+        carousel.appendChild(card);
+      });
+
+      leftBtn.addEventListener("click", () => {
+        carousel.scrollBy({ left: -320, behavior: "smooth" });
+      });
+      rightBtn.addEventListener("click", () => {
+        carousel.scrollBy({ left: 320, behavior: "smooth" });
+      });
+
+      row.appendChild(leftBtn);
+      row.appendChild(carousel);
+      row.appendChild(rightBtn);
+
+      section.appendChild(header);
+      section.appendChild(row);
+
+      return section;
+    }
+
+    function renderSections() {
+      sectionsRoot.innerHTML = "";
+      const used = new Set();
+
+      categoryOrder.forEach((cat) => {
+        if (byCategory[cat]) {
+          sectionsRoot.appendChild(createCarouselSection(cat, byCategory[cat]));
+          used.add(cat);
+        }
+      });
+
+      Object.keys(byCategory)
+        .filter((c) => !used.has(c))
+        .forEach((cat) => {
+          sectionsRoot.appendChild(createCarouselSection(cat, byCategory[cat]));
+        });
+    }
+
+    // MODAL 로직
+    let currentVideo = null;
+
+    function openVideoModal(video) {
+      currentVideo = video;
+      modalTitle.textContent = video.title;
+      modalChannel.textContent = video.channel;
+      modalCuration.textContent = video.curation || "";
+      modalWatchLink.href = video.youtubeUrl;
+
+      const embedUrl = buildEmbedUrl(video) + "?autoplay=1";
+      modalPlayer.src = embedUrl;
+
+      renderRecommendations(video);
+
+      modalOverlay.classList.add("visible");
+    }
+
+    function closeVideoModal() {
+      modalOverlay.classList.remove("visible");
+      modalPlayer.src = ""; // 재생 멈추기
+    }
+
+    function renderRecommendations(video) {
+      modalRecommendRow.innerHTML = "";
+      const sameCategory = byCategory[video.category] || [];
+      const candidates = sameCategory.filter((v) => v.id !== video.id);
+      const recs =
+        candidates.length > 0 ? candidates : videos.filter((v) => v.id !== video.id);
+
+      recs.slice(0, 8).forEach((v) => {
+        const card = document.createElement("div");
+        card.className = "modal-rec-card";
+
+        const img = document.createElement("img");
+        img.src = buildThumbUrl(v);
+        img.alt = v.title;
+
+        const grad = document.createElement("div");
+        grad.className = "modal-rec-gradient";
+
+        const meta = document.createElement("div");
+        meta.className = "modal-rec-meta";
+        meta.innerHTML = `<div>${v.title}</div><div style="opacity:.78">${v.channel}</div>`;
+
+        card.appendChild(img);
+        card.appendChild(grad);
+        card.appendChild(meta);
+
+        card.addEventListener("click", () => {
+          // 새 모달처럼 보이도록 내용만 교체
+          openVideoModal(v);
+        });
+
+        modalRecommendRow.appendChild(card);
+      });
+    }
+
+    modalCloseBtn.addEventListener("click", closeVideoModal);
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeVideoModal();
+    });
+
+    modalOpenYoutube.addEventListener("click", () => {
+      if (currentVideo) {
+        window.open(currentVideo.youtubeUrl, "_blank", "noopener,noreferrer");
+      }
+    });
+
+    // HERO 초기화
+    const heroVideo = videos[0];
+    heroIframe.src = buildEmbedUrl(heroVideo);
+    heroPlayBtn.addEventListener("click", () => openVideoModal(heroVideo));
+
+    // 섹션 렌더링
+    renderSections();
+  </script>
+</body>
+</html>
